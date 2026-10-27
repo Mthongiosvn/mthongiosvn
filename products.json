@@ -1,1 +1,16 @@
-{"products":{},"telegram":"https://t.me/Mthongiosvn"}
+{
+  "products": {
+    "nen": {
+      "title": "nẹn",
+      "image": "nânkj",
+      "note": "nnanannna",
+      "packages": [
+        {
+          "name": "nan",
+          "price": "ắnn"
+        }
+      ]
+    }
+  },
+  "telegram": "https://t.me/Mthongiosvn"
+}
