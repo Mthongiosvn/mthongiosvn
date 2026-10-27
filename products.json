@@ -1,16 +1,4 @@
 {
-  "products": {
-    "migul-pro": {
-      "title": "MIGUL PRO",
-      "image": "HI",
-      "note": "",
-      "packages": [
-        {
-          "name": "Month",
-          "price": "450.000đ"
-        }
-      ]
-    }
-  },
+  "products": {},
   "telegram": "https://t.me/Mthongiosvn"
 }
