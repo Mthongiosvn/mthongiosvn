@@ -4,7 +4,7 @@
   'use strict';
 
   const OWNER  = 'mthongiosvn';   // ví dụ: 'minhbeostore'
-  const REPO   = 'beo-store';
+  const REPO   = 'mthongiosvn';
   const BRANCH = 'main';
   const DATA_PATH = 'products.json';
 
