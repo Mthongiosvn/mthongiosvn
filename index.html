@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <title>Mthongiosvn</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Nhận Làm Bio Như Này ạ"/>
+    <meta name="keywords" content=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://sf-static.upanhlaylink.com/img/image_2026040386bdab7879600d2bee033f35ee854787.jpg">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        :root { --primary: #3b82f6; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        .snowflakes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        .snowflake { color: #fff; font-size: 1.2em; position: absolute; top: -10%; animation: fall linear infinite; opacity: 0.5; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.116);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.082);
+            border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15);
+        }
+        .avatar-container{ position:relative; width:120px; height:120px; display:flex; justify-content:center; align-items:center; padding:0; margin:0 auto; }
+        .avatar-container::before{ display:none !important; }
+        .btn-action {
+            background: white; width: 50px; height: 50px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.06); color: #1e293b; transition: 0.3s;
+            flex-shrink: 0; border: 1px solid rgba(255,255,255,0.8);
+        }
+        .btn-action:hover { background: var(--primary); color: white; transform: rotate(8deg) scale(1.1); }
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .particle { position: absolute; width: 4px; height: 4px; background: white; border-radius: 50%; opacity: 0.6; animation: floatParticle linear infinite; }
+        @keyframes floatParticle {
+            from { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            to { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+        .mouse-glow {
+            position: fixed; width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(127,127,213,0.25), transparent 70%);
+            border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%);
+            z-index: 2; transition: 0.05s linear;
+        }
+        .verify { width: 31px; height: 31px; margin-left: 2px; vertical-align: -3px; }
+        .left-col { position: relative; z-index: 10; }
+        #overlay {
+            position: fixed; inset: 0; background: rgba(10, 10, 20, 0);
+            backdrop-filter: blur(0px); opacity: 0; pointer-events: none;
+            transition: all 0.4s ease; z-index: 9998;
+        }
+        #overlay.active { opacity: 1; pointer-events: auto; }
+        .bg-dynamic { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+        .bg-dynamic img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .music-controls {
+            position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.096); padding: 12px; border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
+        }
+        .music-btn {
+            width: 45px; height: 45px; background: rgba(251, 251, 252, 0.089); color: white;
+            border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.1rem; transition: all 0.3s ease;
+        }
+        .music-btn:hover { transform: scale(1.1); }
+        .select-btn { background: rgba(156, 89, 182, 0.452) !important; }
+        .song-list-panel {
+            position: fixed; bottom: 100px; right: 20px; background: rgba(255, 255, 255, 0.089);
+            backdrop-filter: blur(2px); border-radius: 15px; padding: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); z-index: 1001; width: 250px;
+            opacity: 0; transform: translateY(20px); transition: all 0.3s ease; pointer-events: none;
+        }
+        .song-list-panel.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+        .song-list-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-weight: 600; color: #fff;
+        }
+        .close-list-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 1.2rem; }
+        .song-list-content { max-height: 200px; overflow-y: auto; }
+        .song-list-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s ease; font-size: 14px; color: #fff; margin-bottom: 5px;
+        }
+        .song-list-item.active { background: rgba(77, 171, 247, 0.3); color: #4dabf7; }
+        .song-notification {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: rgba(0, 0, 0, 0.473); color: white; padding: 12px 25px;
+            border-radius: 30px; z-index: 1002; backdrop-filter: blur(7px);
+            transition: all 0.5s ease; opacity: 0;
+        }
+        .song-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .side-banner {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            width: clamp(120px, 14vw, 220px); max-height: calc(100vh - 140px);
+            z-index: 25; border-radius: 18px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 18px 55px rgba(0,0,0,0.25);
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(8px);
+        }
+        .side-banner.left { left: 24px; }
+        .side-banner img { display: block; width: 100%; max-height: calc(100vh - 140px); object-fit: cover; }
+        @media (max-width: 1023px) { .side-banner { display: none; } }
+        .product-thumb {
+            width: 56px; height: 56px; min-width: 56px; min-height: 56px;
+            border-radius: 16px; object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.9);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12); flex-shrink: 0;
+        }
+        .price-modal-backdrop {
+            position: fixed; inset: 0; z-index: 10000;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center;
+            padding: 16px; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .price-modal-backdrop.active { display: flex; opacity: 1; }
+        .price-modal {
+            width: 100%; max-width: 420px;
+            background: linear-gradient(160deg, #ffffff 0%, #f1f5ff 100%);
+            border-radius: 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            overflow: hidden; transform: translateY(30px) scale(0.95);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255,255,255,0.9);
+        }
+        .price-modal-backdrop.active .price-modal { transform: translateY(0) scale(1); }
+        .price-modal-header {
+            position: relative; padding: 24px 22px 18px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white; text-align: center;
+        }
+        .price-modal-header img {
+            width: 70px; height: 70px; border-radius: 20px; object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.9);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            margin: 0 auto 12px; display: block; background: white;
+        }
+        .price-modal-header h3 { font-size: 20px; font-weight: 800; }
+        .price-modal-close {
+            position: absolute; top: 12px; right: 12px;
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(0,0,0,0.25); color: white; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem; transition: 0.25s;
+        }
+        .price-modal-close:hover { background: #ef4444; transform: rotate(90deg); }
+        .price-modal-body { padding: 18px 20px 22px; max-height: 55vh; overflow-y: auto; }
+        .price-option {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px; border-radius: 16px;
+            background: #f8fafc; border: 2px solid #e2e8f0;
+            margin-bottom: 10px; cursor: pointer;
+            transition: all 0.25s ease; user-select: none;
+        }
+        .price-option.selected {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            box-shadow: 0 6px 18px rgba(59,130,246,0.25);
+        }
+        .price-option .p-name { font-weight: 800; color: #1e293b; font-size: 15px; }
+        .price-option .p-price { font-weight: 800; color: #2563eb; font-size: 15px; white-space: nowrap; margin-left: 8px; }
+        .price-option .p-radio {
+            width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
+            border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center;
+            transition: 0.25s; margin-left: 10px;
+        }
+        .price-option.selected .p-radio { border-color: #3b82f6; background: #3b82f6; }
+        .price-option.selected .p-radio::after {
+            content: ''; width: 8px; height: 8px; border-radius: 50%; background: white;
+        }
+        .price-modal-footer { padding: 0 20px 22px; }
+        .buy-btn {
+            width: 100%; padding: 15px; border-radius: 16px; border: none;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white; font-weight: 800; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 10px 25px rgba(59,130,246,0.4); transition: all 0.3s ease;
+        }
+        .buy-btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .buy-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+        .buy-hint { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; font-weight: 600; }
+        #sidebar {
+            position: fixed; top: 0; right: 0; width: 280px; height: 100%;
+            background: rgba(20, 20, 30, 0.75); backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
+            padding: 24px; border-top-left-radius: 24px; border-bottom-left-radius: 24px;
+            transform: translateX(110%); opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+            will-change: transform; z-index: 9999; overflow-y: auto;
+        }
+        #sidebar.active { transform: translateX(0); opacity: 1; }
+        #sidebar h2 { font-size: 20px; font-weight: 900; color: white; margin-bottom: 18px; }
+        .category-group { border-radius: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 8px; }
+        .parent-label {
+            display: flex; align-items: center; gap: 10px; padding: 14px 12px;
+            font-weight: 700; color: #ffffff; border-radius: 14px;
+            background: rgba(59, 130, 246, 0.16);
+        }
+    </style>
+</head>
+<body class="pb-16" onload="startClock(); initMusicPlayer();">
+
+    <div class="bg-dynamic">
+        <img src="https://raw.githubusercontent.com/MinhBeoStore/BEO-MOD-Z/main/IMG_0885.png" alt="Background">
+    </div>
+    <div class="bg-overlay" style="background: #000000; opacity: 0;"></div>
+    <div id="overlay"></div>
+
+    <div class="side-banner left">
+        <img src="https://raw.githubusercontent.com/MinhBeoStore/BEO-MOD-Z/main/IMG_0831.jpeg" alt="Banner">
+    </div>
+
+    <header class="bg-white/70 backdrop-blur-lg h-16 flex justify-between items-center px-6 sticky top-0 z-50 border-b border-white/50">
+        <span class="text-slate-800 font-black italic text-xl uppercase tracking-tighter">
+            <span class="text-blue-600">Mthong</span> iosvn
+        </span>
+        <div class="flex items-center gap-3">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+            <i id="menuBtn" class="fa-solid fa-bars-staggered text-slate-800 text-2xl cursor-pointer"></i>
+        </div>
+    </header>
+
+    <div id="sidebar">
+        <h2>DANH MỤC</h2>
+        <div class="category-group">
+            <div class="parent-label">
+                <i class="fas fa-folder"></i> Ksign
+            </div>
+        </div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+    <div class="mouse-glow" id="mouseGlow"></div>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        const particlesContainer = document.getElementById('particles');
+        function createParticle() {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            const size = Math.random() * 4 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * window.innerWidth + 'px';
+            p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            particlesContainer.appendChild(p);
+            setTimeout(() => p.remove(), 10000);
+        }
+        setInterval(createParticle, 200);
+        const glow = document.getElementById('mouseGlow');
+        document.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+    </script>
+
+    <div class="left-col relative z-10">
+        <div class="max-w-md mx-auto">
+
+            <div class="snowflakes">
+                <div class="snowflake" style="left:10%; animation-duration:10s;">❄</div>
+                <div class="snowflake" style="left:50%; animation-duration:12s;">❄</div>
+                <div class="snowflake" style="left:85%; animation-duration:15s;">❆</div>
+            </div>
+
+            <div class="flex flex-col items-center pt-10">
+                <div class="avatar-container relative w-40 h-40 flex items-center justify-center">
+                    <div class="w-28 h-28 rounded-full overflow-hidden">
+                        <img src="https://raw.githubusercontent.com/Mthongiosvn/IMG/main/IMG_0893.jpeg" class="w-full h-full rounded-full object-cover">
+                    </div>
+                    <img src="https://huutien.store/mong-vuot-rong.png"
+                         class="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
+                         style="transform: translateY(2px);">
+                </div>
+
+                <p class="mt-6 font-bold italic text-sm tracking-widest uppercase bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                    Welcome To
+                </p>
+
+                <h1 class="text-3xl font-black text-yellow-400 text-center mt-1 flex items-center justify-center gap-2">
+                    Mthongiosvn
+                    <img class="verify" src="https://raw.githubusercontent.com/MinhBeoStore/BEO-MOD-Z/main/6003379740159775603.gif" alt="">
+                </h1>
+
+                <p class="mt-6 font-bold italic text-sm tracking-widest uppercase bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                    E Là MTHONG E Chào Mọi Người Ạ.
+                </p>
+
+                <div class="flex gap-5 mt-8 flex-wrap justify-center">
+                    <a href="https://www.tiktok.com/@mthongiosvn_?_r=1&_t=ZS-9AuASwBnoor" target="_blank"
+                       class="w-14 h-14 rounded-xl bg-white shadow-md flex items-center justify-center text-2xl"
+                       style="color: #3b82f6;">
+                        <i class="fa-brands fa-tiktok"></i>
+                    </a>
+                    <a href="https://zalo.me/0383400813" target="_blank"
+                       class="w-14 h-14 rounded-xl bg-white shadow-md flex items-center justify-center"
+                       style="color: #3b82f6;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" class="w-7 h-7">
+                    </a>
+                    <a href="https://t.me/Mthongiosvn" target="_blank"
+                       class="w-14 h-14 rounded-xl bg-white shadow-md flex items-center justify-center text-2xl"
+                       style="color: #3b82f6;">
+                        <i class="fa-brands fa-telegram"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-10 space-y-4 px-4">
+                <!-- BOX TELEGRAM 1 -->
+                <div class="glass-card p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-telegram"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-black text-slate-700 break-words">BOX TELEGRAM 1</p>
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">t.me</p>
+                        </div>
+                    </div>
+                    <a href="https://t.me/HackmodgameIOS_vn" class="btn-action"><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+
+                <!-- BOX TELEGRAM 2 -->
+                <div class="glass-card p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-telegram"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-black text-slate-700 break-words">BOX TELEGRAM 2</p>
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">t.me</p>
+                        </div>
+                    </div>
+                    <a href="https://t.me/ModGame_IOS" class="btn-action"><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+
+                <!-- BOT BÁN KEY 24/7 -->
+                <div class="glass-card p-5 flex items-center justify-between">
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl flex-shrink-0">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-black text-slate-700 break-words">BOT BÁN KEY 24/7</p>
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">t.me</p>
+                        </div>
+                    </div>
+                    <a href="https://t.me/MthongiosvnBot" class="btn-action"><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- SẢN PHẨM RENDER ĐỘNG -->
+            <div id="productGrid" class="mt-8 px-4 space-y-4"></div>
+
+        </div>
+    </div>
+
+    <!-- Modal bảng giá -->
+    <div class="price-modal-backdrop" id="priceModal" onclick="if(event.target===this) closePriceModal()">
+        <div class="price-modal">
+            <div class="price-modal-header">
+                <button class="price-modal-close" onclick="closePriceModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <img id="pmImage" src="" alt="">
+                <h3 id="pmTitle">Tên sản phẩm</h3>
+            </div>
+            <div class="price-modal-body" id="pmBody"></div>
+            <div class="price-modal-footer">
+                <button class="buy-btn" id="pmBuyBtn" disabled onclick="buySelectedPackage()">
+                    <i class="fa-brands fa-telegram"></i> Mua Key
+                </button>
+                <p class="buy-hint">Chọn gói rồi bấm "Mua Key"</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+    (async function () {
+      const products = await BeoStore.loadProducts();
+
+      let currentProductKey = null;
+      let selectedPackageIndex = null;
+
+      function openPriceModal(key, product) {
+        currentProductKey = key;
+        selectedPackageIndex = null;
+        document.getElementById('pmImage').src = product.image || '';
+        document.getElementById('pmTitle').textContent = product.title || '';
+        const body = document.getElementById('pmBody');
+        body.innerHTML = '';
+        (product.packages || []).forEach((pkg, idx) => {
+          const div = document.createElement('div');
+          div.className = 'price-option';
+          div.innerHTML = `
+            <span class="p-name">${BeoStore.escapeHtml(pkg.name)}
+              ${product.note ? `<span style="font-size:11px;color:#8b5cf6;">(${BeoStore.escapeHtml(product.note)})</span>` : ''}
+            </span>
+            <div style="display:flex;align-items:center;">
+              <span class="p-price">${BeoStore.escapeHtml(pkg.price)}</span>
+              <span class="p-radio"></span>
+            </div>`;
+          div.addEventListener('click', () => selectPackage(idx, product));
+          body.appendChild(div);
+        });
+        document.getElementById('pmBuyBtn').disabled = true;
+        document.getElementById('pmBuyBtn').innerHTML = '<i class="fa-brands fa-telegram"></i> Mua Key';
+        document.getElementById('priceModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function selectPackage(idx, product) {
+        selectedPackageIndex = idx;
+        document.querySelectorAll('#pmBody .price-option')
+          .forEach((el, i) => el.classList.toggle('selected', i === idx));
+        const pkg = product.packages[idx];
+        const btn = document.getElementById('pmBuyBtn');
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-brands fa-telegram"></i> Mua ${BeoStore.escapeHtml(pkg.name)} - ${BeoStore.escapeHtml(pkg.price)}`;
+      }
+
+      async function buySelectedPackage() {
+        if (currentProductKey === null || selectedPackageIndex === null) return;
+        const products = await BeoStore.loadProducts();
+        const product = products[currentProductKey];
+        if (!product) return;
+        const pkg = product.packages[selectedPackageIndex];
+        const tg = await BeoStore.loadTelegram();
+        const text = encodeURIComponent(
+          `Xin chào, mình muốn mua key:\n📦 ${product.title}\n⏱ ${pkg.name}\n💰 ${pkg.price}`
+        );
+        window.open(`${tg}?text=${text}`, '_blank', 'noopener,noreferrer');
+        closePriceModal();
+      }
+
+      function closePriceModal() {
+        document.getElementById('priceModal').classList.remove('active');
+        document.body.style.overflow = '';
+        currentProductKey = null;
+        selectedPackageIndex = null;
+      }
+
+      window.buySelectedPackage = buySelectedPackage;
+      window.closePriceModal = closePriceModal;
+
+      BeoStore.renderProductGrid(
+        document.getElementById('productGrid'),
+        products,
+        openPriceModal
+      );
+    })();
+    </script>
+
+    <div class="text-center mt-14 mb-10">
+        <span class="inline-block text-[10px] font-black tracking-[0.4em] uppercase px-6 py-2 rounded-full border border-white/50 text-white/70">
+            © 2026 MTHONG IOS STORE
+        </span>
+    </div>
+
+    <audio id="bgMusic" preload="auto"></audio>
+    <script>
+    function startClock() {
+        setInterval(() => {
+            const now = new Date();
+            document.querySelectorAll('.live-clock').forEach(el => {
+                el.innerHTML = `🕒 ${now.toLocaleTimeString('vi-VN',{hour12:false})} | ${now.toLocaleDateString('vi-VN')}`;
+            });
+        }, 1000);
+    }
+    const playlist = ["https://files.catbox.moe/x02zka.mp3"];
+    const songNames = ["MUSIC"];
+    const audioElem = document.getElementById('bgMusic');
+    let currentSongIndex = 0;
+    function initMusicPlayer() {
+        if (!playlist.length) return;
+        const controls = document.createElement('div');
+        controls.className = 'music-controls';
+        controls.innerHTML = `
+            <button class="music-btn" onclick="togglePlayPause()">
+                <i class="bi bi-play-fill" id="playIcon"></i>
+                <i class="bi bi-pause-fill" id="pauseIcon" style="display:none"></i>
+            </button>`;
+        document.body.appendChild(controls);
+        audioElem.src = playlist[0];
+        audioElem.volume = 0.7;
+    }
+    function togglePlayPause() {
+        if (audioElem.paused) { audioElem.play(); document.getElementById('playIcon').style.display='none'; document.getElementById('pauseIcon').style.display='block'; }
+        else { audioElem.pause(); document.getElementById('playIcon').style.display='block'; document.getElementById('pauseIcon').style.display='none'; }
+    }
+    window.onload = function () { startClock(); initMusicPlayer(); };
+    </script>
+
+</body>
+</html>
