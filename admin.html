@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Admin — MTHONG IOS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+  body { font-family: system-ui, -apple-system, sans-serif; }
+  .input { width:100%; padding:10px 12px; border:2px solid #e2e8f0; border-radius:12px; font-size:14px; transition:.2s; }
+  .input:focus { outline:none; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+  .btn { padding:10px 16px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; transition:.2s; border:none; display:inline-flex; align-items:center; gap:6px; }
+  .btn-primary { background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; }
+  .btn-primary:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(59,130,246,.35); }
+  .btn-danger { background:#ef4444; color:white; }
+  .btn-ghost { background:#f1f5f9; color:#334155; }
+  .product-row { background:white; border:1px solid #e2e8f0; border-radius:16px; padding:14px; display:flex; gap:14px; align-items:center; transition:.2s; }
+  .product-row img { width:56px; height:56px; border-radius:12px; object-fit:cover; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,.1); flex-shrink:0; }
+  .pkg-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .pkg-row .input { flex:1; }
+</style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+  <header class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-black text-slate-800">⚙️ Admin — MTHONG IOS</h1>
+      <p class="text-sm text-slate-500 font-semibold">Sửa sản phẩm — tự lưu lên GitHub</p>
+    </div>
+    <a href="index.html" class="btn btn-ghost">
+      <i class="fa-solid fa-arrow-left"></i> Trang chủ
+    </a>
+  </header>
+
+  <section class="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-slate-200">
+    <label class="block text-xs font-black text-slate-500 uppercase mb-2">Telegram mua hàng (mở khi user bấm Mua Key)</label>
+    <div class="flex gap-2 flex-wrap">
+      <input id="tgUrl" class="input flex-1 min-w-[200px]" type="url">
+      <button class="btn btn-primary" onclick="saveTelegram()">Lưu</button>
+    </div>
+    <p class="text-xs text-slate-400 mt-2">Gợi ý: dùng link bot của m — <code class="bg-slate-100 px-1 rounded">https://t.me/MthongiosvnBot</code></p>
+  </section>
+
+  <section class="bg-white rounded-2xl p-5 mb-6 shadow-sm border border-slate-200">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <h2 class="font-black text-slate-800">📦 Sản phẩm (<span id="count">0</span>)</h2>
+      <button class="btn btn-primary" onclick="openEditor(null)">
+        <i class="fa-solid fa-plus"></i> Thêm
+      </button>
+    </div>
+    <div id="list" class="space-y-3"></div>
+  </section>
+
+  <section id="editor" class="hidden bg-white rounded-2xl p-5 shadow-lg border-2 border-blue-300">
+    <h2 id="editorTitle" class="font-black text-slate-800 mb-4">Sản phẩm mới</h2>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-black text-slate-500 uppercase mb-1">Tên sản phẩm *</label>
+        <input id="fTitle" class="input" placeholder="VD: Dragon IPA">
+      </div>
+      <div>
+        <label class="block text-xs font-black text-slate-500 uppercase mb-1">URL ảnh</label>
+        <input id="fImage" class="input" placeholder="https://...">
+      </div>
+      <div>
+        <label class="block text-xs font-black text-slate-500 uppercase mb-1">Ghi chú</label>
+        <input id="fNote" class="input" placeholder="VD: HOT">
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="block text-xs font-black text-slate-500 uppercase">Gói giá *</label>
+          <button class="btn btn-ghost text-xs" onclick="addPkgRow()">
+            <i class="fa-solid fa-plus"></i> Thêm gói
+          </button>
+        </div>
+        <div id="pkgList"></div>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button class="btn btn-primary flex-1" onclick="saveProduct()">
+          <i class="fa-solid fa-floppy-disk"></i> Lưu
+        </button>
+        <button class="btn btn-ghost" onclick="closeEditor()">Huỷ</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="shared.js"></script>
+<script>
+(async function () {
+  if (!BeoStore.getToken()) {
+    const t = prompt(
+      'Nhập GitHub Token (github_pat_... hoặc ghp_...):\n\n' +
+      'Nếu chưa có: github.com/settings/tokens?type=beta\n' +
+      'Quyền cần: Contents = Read and write'
+    );
+    if (!t) { alert('Cần token để vào admin'); location.href = 'index.html'; return; }
+    BeoStore.setToken(t.trim());
+  }
+
+  let editingKey = null;
+
+  async function refresh() {
+    const products = await BeoStore.loadProducts();
+    const telegram = await BeoStore.loadTelegram();
+    const entries  = Object.entries(products);
+
+    document.getElementById('count').textContent = entries.length;
+    document.getElementById('tgUrl').value = telegram;
+
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    if (!entries.length) {
+      list.innerHTML = '<p class="text-slate-400 text-sm text-center py-4">Chưa có sản phẩm</p>';
+      return;
+    }
+    entries.forEach(([key, p]) => {
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.innerHTML = `
+        <img src="${BeoStore.escapeHtml(p.image || '')}" alt="">
+        <div class="flex-1 min-w-0">
+          <p class="font-black text-slate-800 truncate">${BeoStore.escapeHtml(p.title || '')}</p>
+          <p class="text-xs text-slate-500">${(p.packages || []).length} gói · ${BeoStore.escapeHtml(key)}</p>
+        </div>
+        <button class="btn btn-ghost" onclick="openEditor('${key}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-danger" onclick="removeProduct('${key}')"><i class="fa-solid fa-trash"></i></button>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  window.saveTelegram = async function () {
+    const url = document.getElementById('tgUrl').value.trim();
+    try {
+      await BeoStore.saveTelegram(url);
+      alert('✅ Đã lưu Telegram');
+    } catch (e) { alert('❌ ' + e.message); }
+  };
+
+  window.openEditor = async function (key) {
+    editingKey = key;
+    const products = await BeoStore.loadProducts();
+    const p = key ? products[key] : { title:'', image:'', note:'', packages:[{name:'',price:''}] };
+    document.getElementById('editorTitle').textContent = key ? 'Sửa sản phẩm' : 'Sản phẩm mới';
+    document.getElementById('fTitle').value = p.title || '';
+    document.getElementById('fImage').value = p.image || '';
+    document.getElementById('fNote').value  = p.note  || '';
+    const pkgList = document.getElementById('pkgList');
+    pkgList.innerHTML = '';
+    (p.packages && p.packages.length ? p.packages : [{name:'',price:''}])
+      .forEach(pk => addPkgRow(pk.name, pk.price));
+    document.getElementById('editor').classList.remove('hidden');
+    document.getElementById('editor').scrollIntoView({ behavior:'smooth' });
+  };
+
+  window.closeEditor = function () {
+    editingKey = null;
+    document.getElementById('editor').classList.add('hidden');
+  };
+
+  window.addPkgRow = function (name = '', price = '') {
+    const row = document.createElement('div');
+    row.className = 'pkg-row';
+    row.innerHTML = `
+      <input class="input pkg-name" placeholder="Tên gói" value="${BeoStore.escapeHtml(name)}">
+      <input class="input pkg-price" placeholder="Giá" value="${BeoStore.escapeHtml(price)}" style="max-width:130px;">
+      <button class="btn btn-danger" style="padding:8px 12px;" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
+    `;
+    document.getElementById('pkgList').appendChild(row);
+  };
+
+  window.saveProduct = async function () {
+    const title = document.getElementById('fTitle').value.trim();
+    if (!title) return alert('Thiếu tên');
+    const image = document.getElementById('fImage').value.trim();
+    const note  = document.getElementById('fNote').value.trim();
+
+    const packages = [];
+    document.querySelectorAll('#pkgList .pkg-row').forEach(row => {
+      const name  = row.querySelector('.pkg-name').value.trim();
+      const price = row.querySelector('.pkg-price').value.trim();
+      if (name && price) packages.push({ name, price });
+    });
+    if (!packages.length) return alert('Cần ít nhất 1 gói có tên + giá');
+
+    try {
+      const products = await BeoStore.loadProducts();
+      const key = editingKey || BeoStore.slugify(title);
+      let finalKey = key;
+      if (!editingKey && products[finalKey]) {
+        let n = 2;
+        while (products[`${key}-${n}`]) n++;
+        finalKey = `${key}-${n}`;
+      }
+      products[finalKey] = { title, image, note, packages };
+      await BeoStore.saveProducts(products);
+      alert('✅ Đã lưu lên GitHub\nĐợi 30-60s để web cập nhật');
+      closeEditor();
+      await refresh();
+    } catch (e) { alert('❌ ' + e.message); }
+  };
+
+  window.removeProduct = async function (key) {
+    if (!confirm(`Xoá "${key}"?`)) return;
+    try {
+      const products = await BeoStore.loadProducts();
+      delete products[key];
+      await BeoStore.saveProducts(products);
+      alert('✅ Đã xoá');
+      await refresh();
+    } catch (e) { alert('❌ ' + e.message); }
+  };
+
+  const btnToken = document.createElement('button');
+  btnToken.className = 'btn btn-ghost';
+  btnToken.innerHTML = '<i class="fa-solid fa-key"></i>';
+  btnToken.title = 'Đổi token';
+  btnToken.onclick = () => {
+    const t = prompt('Nhập token mới:');
+    if (t) { BeoStore.setToken(t.trim()); alert('Đã đổi'); }
+  };
+  document.querySelector('header').appendChild(btnToken);
+
+  await refresh();
+})();
+</script>
+
+</body>
+</html>
