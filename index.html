@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <title>Mthongiosvn</title>
+    <title>MTHONG IOS</title>
     <meta charset="UTF-8">
     <meta name="description" content="Nhận Làm Bio Như Này ạ"/>
     <meta name="keywords" content=""/>
@@ -64,6 +64,8 @@
         .bg-dynamic { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
         .bg-dynamic img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        
+        /* PLAYER CSS */
         .music-controls {
             position: fixed; bottom: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000;
             background: rgba(255, 255, 255, 0.096); padding: 12px; border-radius: 30px;
@@ -102,6 +104,7 @@
             transition: all 0.5s ease; opacity: 0;
         }
         .song-notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        
         .side-banner {
             position: fixed; top: 50%; transform: translateY(-50%);
             width: clamp(120px, 14vw, 220px); max-height: calc(100vh - 140px);
@@ -210,21 +213,21 @@
         }
     </style>
 </head>
-<body class="pb-16" onload="startClock(); initMusicPlayer();">
+<body class="pb-16">
 
     <div class="bg-dynamic">
-        <img src="https://raw.githubusercontent.com/MinhBeoStore/BEO-MOD-Z/main/IMG_0885.png" alt="Background">
+        <img src="https://files.catbox.moe/9fsd0e.jpeg" alt="Background">
     </div>
     <div class="bg-overlay" style="background: #000000; opacity: 0;"></div>
     <div id="overlay"></div>
 
     <div class="side-banner left">
-        <img src="https://raw.githubusercontent.com/MinhBeoStore/BEO-MOD-Z/main/IMG_0831.jpeg" alt="Banner">
+        <img src="https://files.catbox.moe/zdbsb2.jpeg" alt="Banner">
     </div>
 
     <header class="bg-white/70 backdrop-blur-lg h-16 flex justify-between items-center px-6 sticky top-0 z-50 border-b border-white/50">
         <span class="text-slate-800 font-black italic text-xl uppercase tracking-tighter">
-            <span class="text-blue-600">Mthong</span> iosvn
+            <span class="text-blue-600">MTHONG</span> IOS
         </span>
         <div class="flex items-center gap-3">
             <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
@@ -288,7 +291,8 @@
             <div class="flex flex-col items-center pt-10">
                 <div class="avatar-container relative w-40 h-40 flex items-center justify-center">
                     <div class="w-28 h-28 rounded-full overflow-hidden">
-                        <img src="https://raw.githubusercontent.com/Mthongiosvn/IMG/main/IMG_0893.jpeg" class="w-full h-full rounded-full object-cover">
+                        <!-- ĐÃ THAY URL AVATAR Ở ĐÂY -->
+                        <img src="https://files.catbox.moe/zdbsb2.jpeg" class="w-full h-full rounded-full object-cover">
                     </div>
                     <img src="https://huutien.store/mong-vuot-rong.png"
                          class="absolute inset-0 w-full h-full object-contain pointer-events-none select-none"
@@ -300,12 +304,13 @@
                 </p>
 
                 <h1 class="text-3xl font-black text-yellow-400 text-center mt-1 flex items-center justify-center gap-2">
-                    Mthongiosvn
+                    MTHONG IOS
                     <img class="verify" src="https://raw.githubusercontent.com/MinhBeoStore/BEO-MOD-Z/main/6003379740159775603.gif" alt="">
                 </h1>
 
                 <p class="mt-6 font-bold italic text-sm tracking-widest uppercase bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    E Là MTHONG E Chào Mọi Người Ạ.
+                    Chào Bạn , Đến Kho Hack Game Mthongiosvn
+
                 </p>
 
                 <div class="flex gap-5 mt-8 flex-wrap justify-center">
@@ -480,38 +485,147 @@
         </span>
     </div>
 
+    <!-- AUDIO & SCRIPT ÂM THANH -->
     <audio id="bgMusic" preload="auto"></audio>
+    
     <script>
-    function startClock() {
-        setInterval(() => {
-            const now = new Date();
-            document.querySelectorAll('.live-clock').forEach(el => {
-                el.innerHTML = `🕒 ${now.toLocaleTimeString('vi-VN',{hour12:false})} | ${now.toLocaleDateString('vi-VN')}`;
-            });
-        }, 1000);
-    }
-    const playlist = ["https://files.catbox.moe/x02zka.mp3"];
-    const songNames = ["MUSIC"];
+    // ĐỔI LINK NHẠC VÀ TÊN NHẠC Ở 2 MẢNG DƯỚI ĐÂY:
+    const playlist = [
+        "https://files.catbox.moe/73yb9m.mp3",
+        "https://files.catbox.moe/x02zka.mp3"
+    ];
+    const songNames = [
+        "MthongiosvnDJ",
+        ""
+    ];
+
     const audioElem = document.getElementById('bgMusic');
     let currentSongIndex = 0;
+
     function initMusicPlayer() {
         if (!playlist.length) return;
+        createMusicControls();
+        createSongList();
+        createSongNotification();
+        playCurrentSong();
+        updateMusicIcons('pause'); // Ban đầu ẩn trạng thái đang phát
+        audioElem.addEventListener('ended', playNextSong);
+    }
+
+    function createMusicControls() {
         const controls = document.createElement('div');
         controls.className = 'music-controls';
         controls.innerHTML = `
-            <button class="music-btn" onclick="togglePlayPause()">
-                <i class="bi bi-play-fill" id="playIcon"></i>
+            <button class="music-btn" onclick="playPreviousSong()" title="Bài trước">
+                <i class="bi bi-skip-backward-fill"></i>
+            </button>
+            <button class="music-btn" onclick="togglePlayPause()" title="Phát/Tạm dừng">
+                <i class="bi bi-play-fill"  id="playIcon"></i>
                 <i class="bi bi-pause-fill" id="pauseIcon" style="display:none"></i>
-            </button>`;
+            </button>
+            <button class="music-btn" onclick="playNextSong()" title="Bài tiếp theo">
+                <i class="bi bi-skip-forward-fill"></i>
+            </button>
+            <button class="music-btn select-btn" onclick="openSongList()" title="Chọn bài hát">
+                <i class="bi bi-music-note-list"></i>
+            </button>
+        `;
         document.body.appendChild(controls);
-        audioElem.src = playlist[0];
+    }
+
+    function createSongList() {
+        const songList = document.createElement('div');
+        songList.className = 'song-list-panel';
+        songList.innerHTML = `
+            <div class="song-list-header">
+                <span>Chọn bài hát</span>
+                <button class="close-list-btn" onclick="closeSongList()"><i class="bi bi-x"></i></button>
+            </div>
+            <div class="song-list-content">
+                ${songNames.map((song, i) => `
+                    <div class="song-list-item ${i === currentSongIndex ? 'active' : ''}" onclick="selectSong(${i})">
+                        <i class="bi bi-music-note"></i>
+                        <span>${song}</span>
+                        ${i === currentSongIndex ? '<i class="bi bi-check"></i>' : ''}
+                    </div>`).join('')}
+            </div>
+        `;
+        document.body.appendChild(songList);
+    }
+
+    function createSongNotification() {
+        const n = document.createElement('div');
+        n.className = 'song-notification';
+        n.innerHTML = `
+            <div class="notification-content">
+                <i class="bi bi-music-note-beamed"></i>
+                <span id="currentSongText">Đang phát: ${songNames[0]}</span>
+            </div>`;
+        document.body.appendChild(n);
+    }
+
+    function playCurrentSong() {
+        audioElem.src    = playlist[currentSongIndex];
         audioElem.volume = 0.7;
+        audioElem.load();
+        document.querySelectorAll('.song-list-item')
+            .forEach((el, i) => el.classList.toggle('active', i === currentSongIndex));
     }
+
+    function playNextSong() {
+        if (!playlist.length) return;
+        currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        playCurrentSong();
+        audioElem.play();
+        updateMusicIcons('play');
+        showSongNotification();
+    }
+
+    function playPreviousSong() {
+        if (!playlist.length) return;
+        currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+        playCurrentSong();
+        audioElem.play();
+        updateMusicIcons('play');
+        showSongNotification();
+    }
+
     function togglePlayPause() {
-        if (audioElem.paused) { audioElem.play(); document.getElementById('playIcon').style.display='none'; document.getElementById('pauseIcon').style.display='block'; }
-        else { audioElem.pause(); document.getElementById('playIcon').style.display='block'; document.getElementById('pauseIcon').style.display='none'; }
+        if (!playlist.length) return;
+        if (audioElem.paused) { 
+            audioElem.play();  
+            updateMusicIcons('play');  
+        } else { 
+            audioElem.pause(); 
+            updateMusicIcons('pause'); 
+        }
     }
-    window.onload = function () { startClock(); initMusicPlayer(); };
+
+    function updateMusicIcons(state) {
+        document.getElementById('playIcon').style.display  = state === 'play' ? 'none'  : 'block';
+        document.getElementById('pauseIcon').style.display = state === 'play' ? 'block' : 'none';
+    }
+
+    function openSongList()  { document.querySelector('.song-list-panel').classList.add('show');    }
+    function closeSongList() { document.querySelector('.song-list-panel').classList.remove('show'); }
+
+    function selectSong(index) {
+        if (!playlist[index]) return;
+        currentSongIndex = index;
+        playCurrentSong();
+        audioElem.play()
+            .then(() => { updateMusicIcons('play');  showSongNotification(); closeSongList(); })
+            .catch(() => { updateMusicIcons('pause'); showSongNotification(); closeSongList(); });
+    }
+
+    function showSongNotification() {
+        const n = document.querySelector('.song-notification');
+        document.getElementById('currentSongText').textContent = `Đang phát: ${songNames[currentSongIndex]}`;
+        n.classList.add('show');
+        setTimeout(() => n.classList.remove('show'), 3000);
+    }
+
+    window.onload = function () { initMusicPlayer(); };
     </script>
 
 </body>
