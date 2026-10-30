@@ -1,4 +1,24 @@
 {
-  "products": {},
+  "products": {
+    "trollmod-phantom": {
+      "title": "TrollMod ( PhanTom )",
+      "image": "sandbox:/mnt/data/IMG_1784.jpeg",
+      "note": "✅ Hỗ Trợ Ios 16.0-27.x , Androi  ✅ Sử Dụng FF Thường , FF Max ✅ Esp Moco , Aim Neck  ✅ Fake Lag , Keo Ngược ( Tự chỉnh ) ✅ Cứu Nhanh 0.1s",
+      "packages": [
+        {
+          "name": "1 Ngày",
+          "price": "50.000₫"
+        },
+        {
+          "name": "7 Ngày",
+          "price": "120.000₫"
+        },
+        {
+          "name": "30 Ngày",
+          "price": "250.00₫"
+        }
+      ]
+    }
+  },
   "telegram": "https://t.me/Mthongiosvn"
 }
